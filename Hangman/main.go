@@ -68,16 +68,8 @@ func WordsSize() int {
 	}
 	return result
 }
-func selectword(i int){
-	for i, r := range strings.Split(words, "\n") {
-	if u == line(
-		return e
-	)
-	}
-	return ""
-}
 
-func getRandomNumber(max int, min int) int {
+func getRandomNumber(max, min int) int {
 	rand.Seed(time.Now().UnixNano())
 	result := rand.Intn(max-min) + min
 	return result
@@ -93,5 +85,7 @@ func Init() {
 }
 
 func Play() {
+	for isStart {
 
+	}
 }
