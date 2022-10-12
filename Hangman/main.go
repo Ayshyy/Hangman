@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"io/ioutil"
+    "log"
+)
 
 var (
 	isStart bool
@@ -9,6 +13,15 @@ var (
 func main() {
 	Init()
 
+}
+func load(){
+	content, err := ioutil.ReadFile("words.txt")
+
+	if err != nil {
+		 log.Fatal(err)
+	}
+
+   fmt.Println(string(content))
 }
 
 func Init() {
