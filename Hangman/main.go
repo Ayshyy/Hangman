@@ -23,6 +23,14 @@ func load() {
 
 	fmt.Println(string(content))
 }
+func selectword(i int){
+	for i, r := range strings.Split(words, "\n") {
+	if u == line(
+		return e
+	)
+	}
+	return ""
+}
 
 func Init() {
 	input := ""
