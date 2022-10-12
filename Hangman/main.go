@@ -3,11 +3,12 @@ package main
 import "fmt"
 
 var (
-	isStart bool = false
+	isStart bool
 )
 
 func main() {
 	Init()
+
 }
 
 func Init() {
