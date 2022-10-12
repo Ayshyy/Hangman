@@ -11,9 +11,10 @@ import (
 )
 
 var (
-	isStart                 bool   //Check if party is Running
-	words, HangmanPositions string //Data from file hangman.txt and word.txt
-	hangmanData             HangManData
+	words            string
+	isStart          bool   //Check if party is Running
+	HangmanPositions string //Data from file hangman.txt and word.txt
+	hangmanData      HangManData
 )
 
 type HangManData struct {
@@ -39,14 +40,14 @@ func Debug() {
 }
 
 func load() {
-	//Load File words.txt in memory
+	//Load words.txt
 	fmt.Println("Hangman is Loading...")
 	content, err := ioutil.ReadFile("words.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
 	//Init hangman Data
-	words = string(content)
+	hangman.words = string(content)
 
 	//Select random word
 	hangmanData.ToFind = SelectWord(getRandomNumber(WordsSize(), 0))
@@ -57,15 +58,6 @@ func load() {
 		log.Fatal(err)
 	}
 	HangmanPositions = string(hangman)
-}
-
-func SelectWord(line int) string {
-	for u, e := range strings.Split(words, "\n") {
-		if u == line-1 {
-			return e
-		}
-	}
-	return ""
 }
 
 func WordsSize() int {
@@ -110,6 +102,6 @@ func Init() {
 
 func Play() {
 	for isStart {
-
+		isStart = false
 	}
 }
