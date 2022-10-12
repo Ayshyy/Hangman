@@ -4,6 +4,7 @@ import "fmt"
 
 var (
 	isStart bool
+	words   []string
 )
 
 func main() {
@@ -11,10 +12,14 @@ func main() {
 
 }
 
+func load() {
+
+}
+
 func Init() {
 	input := ""
-	fmt.Println("Appuyez sur une touche pour commencé !")
-	fmt.Scanf(">", &input)
+	fmt.Println("Appuyez sur entré pour commencé !")
+	fmt.Scan(">", &input)
 	for len(input) > 1 {
 	}
 	isStart = true
