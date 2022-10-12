@@ -4,29 +4,36 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"strings"
 )
 
 var (
 	isStart bool
-	words   []string
+	words   string
 )
 
 func main() {
+	load()
 	Init()
-
 }
-func load() {
-	content, err := ioutil.ReadFile("words.txt")
 
+func load() {
+	//Load File words.txt in memory
+	content, err := ioutil.ReadFile("words.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
+	words = string(content)
 
-	fmt.Println(string(content))
 }
 
-func load() {
-
+func selectword(line int) string {
+	for u, e := range strings.Split(words, "\n") {
+		if u == line-1 {
+			return e
+		}
+	}
+	return ""
 }
 
 func Init() {
