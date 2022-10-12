@@ -43,6 +43,11 @@ func load() {
 	//Init hangman Data
 	//Select random word
 	hangmanData.ToFind = selectword(getRandomNumber(WordsSize(), 0))
+	hangman, err := ioutil.ReadFile("hangman.txt")
+	if err != nil {
+		log.Fatal(err)
+	}
+	HangmanPositions = string(hangman)
 }
 
 func selectword(line int) string {
