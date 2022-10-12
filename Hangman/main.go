@@ -10,9 +10,10 @@ import (
 )
 
 var (
-	isStart     bool
-	words       string
-	hangmanData HangManData
+	isStart          bool
+	words            string
+	HangmanPositions string
+	hangmanData      HangManData
 )
 
 type HangManData struct {
@@ -39,8 +40,9 @@ func load() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	words = string(content)
 	//Init hangman Data
+	words = string(content)
+
 	//Select random word
 	hangmanData.ToFind = selectword(getRandomNumber(WordsSize(), 0))
 }
@@ -54,17 +56,17 @@ func selectword(line int) string {
 	return ""
 }
 
-func getRandomNumber(max int, min int) int {
-	rand.Seed(time.Now().UnixNano())
-	result := rand.Intn(max-min) + min
-	return result
-}
-
 func WordsSize() int {
 	result := 0
 	for range strings.Split(words, "\n") {
 		result++
 	}
+	return result
+}
+
+func getRandomNumber(max int, min int) int {
+	rand.Seed(time.Now().UnixNano())
+	result := rand.Intn(max-min) + min
 	return result
 }
 
@@ -75,4 +77,8 @@ func Init() {
 	for len(input) > 1 {
 	}
 	isStart = true
+}
+
+func Play() {
+
 }
