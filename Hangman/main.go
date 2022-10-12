@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
-    "log"
+	"log"
 )
 
 var (
@@ -14,14 +14,14 @@ func main() {
 	Init()
 
 }
-func load(){
+func load() {
 	content, err := ioutil.ReadFile("words.txt")
 
 	if err != nil {
-		 log.Fatal(err)
+		log.Fatal(err)
 	}
 
-   fmt.Println(string(content))
+	fmt.Println(string(content))
 }
 
 func Init() {
