@@ -35,6 +35,7 @@ func main() {
 func Debug() {
 	fmt.Println(hangmanData.ToFind)
 	fmt.Println(CheckWin())
+	fmt.Println(hangmanData.HangmanPositions)
 }
 
 func load() {
@@ -61,13 +62,22 @@ func load() {
 
 	//set Word hide
 	hangmanData.Word = HideWord(hangmanData.ToFind)
+	hangmanData.Word = AddRandomLetter()
 	//hangmanData.Word = AddRandomLetter()
-	hangmanData.Attempts = 10
+	hangmanData.Attempts = 9
 }
 
 func finish() {
-	fmt.Println("Game finish, Good bye")
-	os.Exit(1)
+	fmt.Println("Game finish, press enter to close\n \n ")
+	fmt.Println("Tape Y pour rejouer !")
+	scanner := bufio.NewReader(os.Stdin)
+	char, _, _ := scanner.ReadRune()
+	switch char {
+	case 'y':
+		main()
+	default:
+		os.Exit(1)
+	}
 }
 
 func SelectWord(line int) string {
@@ -112,15 +122,18 @@ func addFindLetter(runes rune) string {
 
 func AddRandomLetter() string {
 	result := ""
-
+	rdm := getRandomNumber(len(hangmanData.ToFind)-1, 0)
 	strConvert := []rune(hangmanData.Word)
-	strConvertToFind := []rune(hangmanData.ToFind)
-	i := getRandomNumber(len(strConvertToFind)-1, 0)
-
-	if strConvert[i] == strConvertToFind[i] {
-		strConvert[i] = strConvertToFind[i]
+	for i, r := range hangmanData.ToFind {
+		letter := ' '
+		if i == rdm {
+			letter = r
+			strConvert[i] = r
+		}
+		if r == letter && letter != ' ' {
+			strConvert[i] = r
+		}
 	}
-
 	for _, r := range strConvert {
 		result += string(r)
 	}
@@ -160,10 +173,10 @@ func CheckWin() bool {
 }
 
 func getHangmanFromPos(position int) string {
+	position++
 	HangmanSize := 8
-	if position > 10 && position < 1 {
+	if position > 10 && position < 0 {
 		fmt.Printf("Hangman position Error: %v", position)
-		os.Exit(3)
 		return ""
 	}
 	hangmanStat := ""
@@ -187,6 +200,7 @@ func Play() {
 	isStart = true
 	scanner := bufio.NewScanner(os.Stdin)
 	fmt.Println(hangmanData.Word)
+	fmt.Println("Tentative Restante: " + strconv.Itoa(hangmanData.Attempts))
 	fmt.Print("Tape une lettre : ")
 	for scanner.Scan() && isStart {
 		switch scanner.Text() {
@@ -194,10 +208,10 @@ func Play() {
 			finish()
 		default:
 			if len(scanner.Text()) == 1 {
-				if hangmanData.Attempts >= 0 {
+				if hangmanData.Attempts >= 1 {
+
 					if CheckRune(TextToRune(scanner.Text())) {
 						fmt.Println("Lettre trouvée: " + scanner.Text())
-						// Show debug infos delete after finish !
 						hangmanData.Word = addFindLetter(TextToRune(scanner.Text()))
 						fmt.Println(hangmanData.Word)
 						if CheckWin() {
@@ -209,9 +223,10 @@ func Play() {
 						hangmanData.Attempts -= 1
 						hangmanData.HangmanPositions += 1
 						fmt.Println(hangmanData.Word)
+						fmt.Println("Tentative Restante: " + strconv.Itoa(hangmanData.Attempts))
 					}
-					fmt.Println("Tentative Restante: " + strconv.Itoa(hangmanData.Attempts))
 				} else {
+					fmt.Println(getHangmanFromPos(hangmanData.HangmanPositions))
 					fmt.Println("Pendu")
 					finish()
 				}
