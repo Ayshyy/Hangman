@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"hangmancli/Hangman/color"
 	"io/ioutil"
 	"log"
 	"math/rand"
@@ -41,7 +40,7 @@ func Debug() {
 
 func load() {
 	//Load words.txt
-	fmt.Println(color.Red + "Hangman is Loading...")
+	fmt.Println("Hangman is Loading...")
 
 	content, err := ioutil.ReadFile("words.txt")
 	if err != nil {
