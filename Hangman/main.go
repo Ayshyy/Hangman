@@ -28,17 +28,13 @@ type HangManData struct {
 
 func main() {
 	load()
-	//Debug() // temp fonction delete after finish
+	// Debug() // temp fonction delete after finish
 	Play()
 }
 
 func Debug() {
 	fmt.Println(hangmanData.ToFind)
-	fmt.Println("--------Debug-------")
-	for i := 0; i <= 10; i++ {
-		fmt.Println(getHangmanFromPos(i))
-	}
-	fmt.Println("--------------------")
+	fmt.Println(CheckWin())
 }
 
 func load() {
@@ -54,6 +50,8 @@ func load() {
 	//Select random word
 	hangmanData.ToFind = SelectWord(getRandomNumber(WordsSize(), 0))
 
+	words = ""
+
 	//Load Hangman.txt
 	hangman, err := ioutil.ReadFile("hangman.txt")
 	if err != nil {
@@ -63,8 +61,10 @@ func load() {
 
 	//set Word hide
 	hangmanData.Word = HideWord(hangmanData.ToFind)
+	//hangmanData.Word = AddRandomLetter()
 	hangmanData.Attempts = 10
 }
+
 func finish() {
 	fmt.Println("Game finish, Good bye")
 	os.Exit(1)
@@ -73,7 +73,7 @@ func finish() {
 func SelectWord(line int) string {
 	for u, e := range strings.Split(words, "\n") {
 		if u == line-1 {
-			return e
+			return strings.ReplaceAll(e, " ", "")
 		}
 	}
 	return ""
@@ -90,11 +90,12 @@ func CheckRune(rune rune) bool {
 
 func HideWord(word string) string {
 	str := ""
-	for range word {
+	for i := 0; i < len(word)-1; i++ {
 		str += "_"
 	}
 	return str
 }
+
 func addFindLetter(runes rune) string {
 	result := ""
 	strConvert := []rune(hangmanData.Word)
@@ -103,6 +104,23 @@ func addFindLetter(runes rune) string {
 			strConvert[i] = runes
 		}
 	}
+	for _, r := range strConvert {
+		result += string(r)
+	}
+	return result
+}
+
+func AddRandomLetter() string {
+	result := ""
+
+	strConvert := []rune(hangmanData.Word)
+	strConvertToFind := []rune(hangmanData.ToFind)
+	i := getRandomNumber(len(strConvertToFind)-1, 0)
+
+	if strConvert[i] == strConvertToFind[i] {
+		strConvert[i] = strConvertToFind[i]
+	}
+
 	for _, r := range strConvert {
 		result += string(r)
 	}
@@ -123,6 +141,24 @@ func getRandomNumber(max, min int) int {
 	return result
 }
 
+func CheckWin() bool {
+	strConv := []rune(hangmanData.Word)
+	strWord := []rune(hangmanData.ToFind)
+	nbrValid := 0
+	WordSize := 0
+
+	for i := 0; i < len(hangmanData.ToFind)-1; i++ {
+		if strConv[i] == strWord[i] && strWord[i] != ' ' && strWord[i] != '\n' {
+			nbrValid++
+		}
+	}
+	for range hangmanData.Word {
+		WordSize++
+	}
+
+	return WordSize == nbrValid
+}
+
 func getHangmanFromPos(position int) string {
 	HangmanSize := 8
 	if position > 10 && position < 1 {
@@ -139,12 +175,14 @@ func getHangmanFromPos(position int) string {
 	}
 	return hangmanStat
 }
+
 func TextToRune(text string) rune {
 	for _, r := range text {
 		return r
 	}
 	return ' '
 }
+
 func Play() {
 	isStart = true
 	scanner := bufio.NewScanner(os.Stdin)
@@ -156,23 +194,29 @@ func Play() {
 			finish()
 		default:
 			if len(scanner.Text()) == 1 {
-				if hangmanData.Attempts >= 1 {
-					fmt.Println("Tentative Restante: " + strconv.Itoa(hangmanData.Attempts))
+				if hangmanData.Attempts >= 0 {
 					if CheckRune(TextToRune(scanner.Text())) {
 						fmt.Println("Lettre trouvée: " + scanner.Text())
+						// Show debug infos delete after finish !
 						hangmanData.Word = addFindLetter(TextToRune(scanner.Text()))
 						fmt.Println(hangmanData.Word)
+						if CheckWin() {
+							fmt.Println("tu as gagné !")
+							finish()
+						}
 					} else {
+						fmt.Println(getHangmanFromPos(hangmanData.HangmanPositions))
 						hangmanData.Attempts -= 1
 						hangmanData.HangmanPositions += 1
-
-						fmt.Println(getHangmanFromPos(hangmanData.HangmanPositions))
 						fmt.Println(hangmanData.Word)
 					}
+					fmt.Println("Tentative Restante: " + strconv.Itoa(hangmanData.Attempts))
 				} else {
 					fmt.Println("Pendu")
 					finish()
 				}
+			} else if len(scanner.Text()) == 0 {
+
 			} else {
 				fmt.Println("Trop de lettres.")
 			}
