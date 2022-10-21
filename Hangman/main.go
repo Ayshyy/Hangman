@@ -23,7 +23,7 @@ type HangManData struct {
 	Word             string // Word composed of '_', ex: H_ll_
 	ToFind           string // Final word chosen by the program at the beginning. It is the word to find
 	Attempts         int    // Number of attempts left
-	HangmanPositions int    // It can be the array where the positions parsed in "hangman.txt" are stored
+	HangmanPositions int    // hangman position state
 }
 
 func main() {
@@ -32,13 +32,7 @@ func main() {
 	Play()
 }
 
-func Debug() {
-	fmt.Println(hangmanData.ToFind)
-	fmt.Println(CheckWin())
-	fmt.Println(hangmanData.HangmanPositions)
-}
-
-func load() {
+func load() { //Chargement des fichiers du jeux
 	//Load words.txt
 	fmt.Println("Hangman is Loading...")
 
@@ -66,31 +60,39 @@ func load() {
 	hangmanData.Word = AddRandomLetter()
 	//hangmanData.Word = AddRandomLetter()
 	hangmanData.Attempts = 9
+
+	fmt.Println(getHangmanFromPos(9)) //Affichage du hangma
+	fmt.Println("\n\n\n ----------------")
+	fmt.Println("  ")
 }
 
-func finish() {
-	fmt.Println("Game finish, press enter to close\n \n ")
+func finish() { //Met fin au jeux. Possibilité de rejouer en tapant sur Y autrement le programme s'arrête.
+	isStart = false
+	getHangmanFromPos(hangmanData.HangmanPositions)
+	fmt.Println("\n\nGame finish, press enter to close\n ")
 	fmt.Println("Tape Y pour rejouer !")
 	scanner := bufio.NewReader(os.Stdin)
 	char, _, _ := scanner.ReadRune()
 	switch char {
 	case 'y':
 		main()
+	case 'Y':
+		main()
 	default:
 		os.Exit(1)
 	}
 }
 
-func SelectWord(line int) string {
-	for u, e := range strings.Split(words, "\n") {
-		if u == line-1 {
-			return strings.ReplaceAll(e, " ", "")
+func SelectWord(line int) string { //On récupère un mot selon la ligne où il se situe dans le fichier word.txt
+	for index, str := range strings.Split(words, "\n") {
+		if index == line-1 {
+			return strings.ReplaceAll(str, " ", "")
 		}
 	}
 	return ""
 }
 
-func CheckRune(rune rune) bool {
+func CheckRune(rune rune) bool { //On verifie si la rune correspond à une lettre dans le mot à trouver
 	for _, r := range hangmanData.ToFind {
 		if rune == r {
 			return true
@@ -107,7 +109,7 @@ func HideWord(word string) string {
 	return str
 }
 
-func addFindLetter(runes rune) string {
+func addFindLetter(runes rune) string { //on ajoute
 	result := ""
 	strConvert := []rune(hangmanData.Word)
 	for i, r := range hangmanData.ToFind {
@@ -121,7 +123,7 @@ func addFindLetter(runes rune) string {
 	return result
 }
 
-func AddRandomLetter() string {
+func AddRandomLetter() string { //On ajoute une lettre aléatoire
 	result := ""
 	rdm := getRandomNumber(len(hangmanData.ToFind)-1, 0)
 	strConvert := []rune(hangmanData.Word)
@@ -141,7 +143,7 @@ func AddRandomLetter() string {
 	return result
 }
 
-func WordsSize() int {
+func WordsSize() int { //Retourne le nombre de mot contenu dans le fichier word.txt
 	result := 0
 	for range strings.Split(words, "\n") {
 		result++
@@ -149,13 +151,13 @@ func WordsSize() int {
 	return result
 }
 
-func getRandomNumber(max, min int) int {
+func getRandomNumber(max, min int) int { //on récupère un nombre aléatoire compris entre min et max
 	rand.Seed(time.Now().UnixNano())
 	result := rand.Intn(max-min) + min
 	return result
 }
 
-func CheckWin() bool {
+func CheckWin() bool { //On verifie si le mot trouvé et le mot rechercher correspondes dans ce cas il retourne true ou false
 	strConv := []rune(hangmanData.Word)
 	strWord := []rune(hangmanData.ToFind)
 	nbrValid := 0
@@ -173,6 +175,34 @@ func CheckWin() bool {
 	return WordSize == nbrValid
 }
 
+func checkWord(word string) bool { //détermine si le mot taper et valide, si le mots contient moin de lettre c'est considéré comme mal tapé.
+	strConv := []rune(word)
+	strWord := []rune(hangmanData.ToFind)
+	nbrValid := 0
+	WordSize := 0
+	if len(word) != len(strConv) {
+		return false
+	}
+
+	for i := 0; i < len(hangmanData.ToFind)-1; i++ {
+		if strConv[i] == strWord[i] && strWord[i] != ' ' && strWord[i] != '\n' {
+			nbrValid++
+		}
+	}
+	for range hangmanData.Word {
+		WordSize++
+	}
+
+	valid := WordSize == nbrValid //Si le mot tapé est incorrect on retire 2 essais et on affiche l'état du pendu
+	if !valid {
+		punishment := 2 // determine le nombre de point retiré au joueur
+		hangmanData.Attempts -= punishment
+		hangmanData.HangmanPositions += punishment
+		getHangmanFromPos(hangmanData.HangmanPositions)
+	}
+	return valid
+}
+
 func getHangmanFromPos(position int) string {
 	position++
 	HangmanSize := 8
@@ -181,10 +211,10 @@ func getHangmanFromPos(position int) string {
 		return ""
 	}
 	hangmanStat := ""
-	for index, r := range strings.Split(HangmanPositions, "\n") {
+	for index, s := range strings.Split(HangmanPositions, "\n") {
 		INC := HangmanSize * position
 		if index >= INC-HangmanSize-1 && index < INC-1 {
-			hangmanStat += r + "\n"
+			hangmanStat += s + "\n"
 		}
 	}
 	return hangmanStat
@@ -212,7 +242,7 @@ func Play() {
 				if hangmanData.Attempts >= 1 {
 
 					if CheckRune(TextToRune(scanner.Text())) {
-						fmt.Println("Lettre trouvée: " + scanner.Text())
+						fmt.Println(">> Lettre trouvée: " + scanner.Text() + "\n")
 						hangmanData.Word = addFindLetter(TextToRune(scanner.Text()))
 						fmt.Println(hangmanData.Word)
 						if CheckWin() {
@@ -228,12 +258,18 @@ func Play() {
 					}
 				} else {
 					fmt.Println(getHangmanFromPos(hangmanData.HangmanPositions))
-					fmt.Println("Pendu")
+					fmt.Println("               Pendu !")
+					fmt.Println("\nLe mot était : " + hangmanData.ToFind + "")
 					finish()
 				}
 			} else if len(scanner.Text()) == 0 {
 
 			} else {
+
+				if checkWord(scanner.Text()) {
+					fmt.Println("\n\nBravo ! Le mot était bien: " + hangmanData.ToFind)
+					finish()
+				}
 				fmt.Println("Trop de lettres.")
 			}
 		}
